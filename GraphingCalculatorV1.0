@@ -1,0 +1,1586 @@
+import tkinter as tk
+from tkinter import *
+
+import random
+import os
+
+import matplotlib
+ 
+import matplotlib.pyplot as plt
+
+import numpy as np
+from numpy import arange, sin, cos
+
+import pylab as p
+
+
+
+FONT= ("Arial", 14)
+
+"""there are different functions in this program within each class (the ones for graphing) in this program: """
+# graph -> for graphing the functions on matplotlib:
+# 1) get the variables from each input
+# 2) set the interval using np.arange according to the start and end entries
+# 3) calculate the y values for each x value using the correct order of the transformations
+# 4) plot + graph them using matplotlib and use grid, or use pylab (we used this for the functions that have asymptotes) 
+
+#add_num -> for adding the text from the buttons to the entries:
+# 1) focus on each entry
+# 2) use hassattr to determine which entry the user has chosen, and add the button text to it.
+
+
+"""layout for each graphing page: """
+# 1) label the main function 
+# 2) create entries for each value of the function for transformations + the intervals 
+# 3) create the calculator buttons which include numbers, decimal point, and negative sign
+# 4) graph button: passes the values in the entries to matplotlib so they can be graphed
+# 5) back/home button return to start page or main function page 
+
+
+
+class root(tk.Tk):
+
+    """root is the main interface for this program"""
+
+    def __init__(self, *args, **kwargs):
+        
+        tk.Tk.__init__(self, *args, **kwargs)
+
+        Frame = tk.Frame(self)
+
+        Frame.pack(side = "top", fill = "both", expand = True)
+        Frame.grid_rowconfigure(0, weight = 1)
+        Frame.grid_columnconfigure(0, weight = 1)
+
+        #create a dictionary in frames so each page for the functions can be defined with a class. 
+        self.frames = {}
+
+        """represent all of the individual pages and append them to the dictionary"""
+        # F represets frame
+        for F in (StartPage,
+                  PagePolynomial, PageExponential, PageTrig,
+                  PageDeg0, PageDeg1, PageDeg2, PageDeg3,
+                  PageSin, PageCos, PageTan, PageCsc, PageSec, PageCot):
+            
+            frame = F(Frame, self)
+
+            self.frames[F] = frame
+
+            frame.grid(row = 0, column = 0, sticky = "nsew")
+
+        self.show_frame(StartPage)
+        
+
+    """define the function for showing each frame as their button is clicked"""
+    def show_frame(self, cont):
+
+        frame = self.frames[cont]
+        frame.tkraise()
+
+
+"""the home (intro) page"""       
+class StartPage(tk.Frame):
+
+    
+    
+    # 1) label
+    # 2) button for pages of the functions 
+    def __init__(self, parent, controller):
+
+        
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text = "Welcome! Choose the type of function:  ", font = FONT)
+        label.pack(pady = 10, padx = 10)
+
+        bPolynomial = tk.Button(self, text="Polynomial", bg = "spring green", command = lambda: controller.show_frame(PagePolynomial))
+        bPolynomial.pack()
+
+        bExponential = tk.Button(self, text="Exponential", bg = "thistle",  command = lambda: controller.show_frame(PageExponential))
+        bExponential.pack()
+
+        bTrig = tk.Button (self, text = "Trigonometric", bg = "cyan", command = lambda: controller.show_frame(PageTrig)) 
+        bTrig.pack ()
+
+
+"""define the components of each page using class, add everything such as labels, buttons, and entries within each class"""
+
+
+
+class PagePolynomial(tk.Frame):
+
+    # 1) label
+    # 2) button for each degree (new pages)
+    # 3) home button (returns to start page) 
+    
+    def __init__(self, parent, controller):
+        
+        tk.Frame.__init__(self, parent)
+
+        
+        label = tk.Label(self, text="Choose the Degree of the degree of The Equation: ", font=FONT)
+        label.pack(pady=10,padx=10)
+        
+        degzero = tk.Button(self, text = "Degree 0", bg = "spring green", command = lambda: controller.show_frame (PageDeg0)) 
+        degzero.pack ()
+        
+        degone = tk.Button (self, text = "Degree 1", bg = "spring green", command = lambda: controller.show_frame (PageDeg1)) 
+        degone.pack ()
+        
+        degtwo = tk.Button(self, text = "Degree 2", bg = "spring green", command = lambda: controller.show_frame (PageDeg2)) 
+        degtwo.pack ()
+        
+        degthree = tk.Button(self, text = "Degree 3", bg = "spring green", command = lambda: controller.show_frame (PageDeg3)) 
+        degthree.pack ()
+        
+        home = tk.Button(self, text = "Home", command = lambda: controller.show_frame(StartPage))
+        home.pack()
+
+        
+       
+       
+class PageExponential(tk.Frame):
+
+
+    def __init__(self, parent, controller):
+        
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetb = b.focus_get()
+            widgetk = k.focus_get()
+            widgetd = d.focus_get()
+            widgetc = c.focus_get()
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetb and hasattr (widgetb, "insert"):
+                widgetb.insert("insert", x)
+            elif widgetk and hasattr(widgetk, "insert"):
+                widgetk.insert("insert", x)
+            elif widgetd and hasattr (widgetd, "insert"):
+                widgetd.insert("insert", x)
+            elif widgetc.insert("insert", x):
+                widgetc.insert("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+        
+
+        def graph ():
+            A = (float (a.get()))
+            B = (float (b.get()))
+            K = (float (k.get()))
+            D = (float (d.get()))
+            C = (float (c.get())) 
+            s = (float (start.get())) 
+            e = (float (end.get()))
+
+            x = arange (s, e, 0.001)
+            ps = x - D
+            exponent = K*ps
+            power = B**exponent
+            y = A*power + C
+
+            plt.plot (x, y)
+            plt.grid (True)
+            plt.show () 
+
+        
+        tk.Frame.__init__(self, parent)
+        
+        label = tk.Label(self, text="Exponential", font = FONT)
+        label.grid (row = 0, column = 1, sticky = "nsew") 
+
+        mainFunction = tk.Label(self, text = "y = ab^[k(x-d)] + c", font = FONT)
+        mainFunction.grid (row = 1, column = 0)
+
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelb = tk.Label(self, text = "b = ", font = FONT, fg = 'orange')
+        labelb.grid (row = 3, column = 0)
+
+        labelk = tk.Label (self, text = "k = ", font = FONT, fg = 'green')
+        labelk.grid (row = 4, column = 0)
+
+        labeld = tk.Label(self, text = "d = ", font = FONT, fg = 'blue')
+        labeld.grid (row = 5, column = 0)
+        
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'violet')
+        labelc.grid (row = 6, column = 0)
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+        b = tk.Entry (self)
+        b.grid (row = 3, column = 1)
+
+        k = tk.Entry (self)
+        k.grid (row = 4, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 5, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 6, column = 1)
+
+        
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 7, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 7, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 7, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 7, column = 3)
+        
+        bGraph  = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 8, column = 2) 
+        
+        home = tk.Button(self, text="Home", command = lambda: controller.show_frame(StartPage))
+        home.grid (row = 9, column = 2)
+
+        Button(self, text = '7', width = 10, height = 5,bg = "thistle", command = lambda: add_num('7')).grid(row = 10,column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5,bg = "thistle", command = lambda: add_num('8')).grid(row = 10,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5,bg = "thistle", command = lambda: add_num('9')).grid(row = 10,column = 2, sticky = E+W+N+S)       
+             
+        Button(self, text = '4', width = 10, height = 5, bg = "thistle",command = lambda: add_num('4')).grid(row = 11,column=0, sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "thistle",command = lambda: add_num('5')).grid(row = 11,column=1, sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "thistle",command = lambda: add_num('6')).grid(row = 11,column=2, sticky = E+W+N+S)
+
+        Button(self, text='1', width = 10, height = 5, bg = "thistle", command = lambda: add_num('1')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button(self, text='2', width = 10, height = 5, bg = "thistle", command = lambda: add_num('2')).grid(row = 12, column = 1, sticky = E+W+N+S)
+        Button(self, text='3', width = 10, height = 5, bg = "thistle", command = lambda: add_num('3')).grid(row = 12, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "thistle",command=lambda: add_num('0')).grid(row = 13, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "thistle", command = lambda: add_num('-')).grid(row = 13, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "thistle",command=lambda: add_num('.')).grid(row = 13, column = 2, sticky = E+W+N+S)
+
+
+        
+
+        
+        
+class PageTrig (tk.Frame):
+    
+   def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text = "Choose the Trigonometric Function: ", font = FONT)
+        label.pack(pady = 10, padx = 10)
+        
+        buttonSin = tk.Button(self, text = "Sine" , bg = "cyan", command = lambda: controller.show_frame(PageSin)) 
+        buttonSin.pack()
+
+        buttonCos = tk.Button(self, text = "Cosine", bg = "cyan", command = lambda: controller.show_frame(PageCos))
+        buttonCos.pack ()
+        
+        buttonTan = tk.Button(self, text = "Tangent", bg = "cyan", command = lambda: controller.show_frame(PageTan)) 
+        buttonTan.pack()
+
+        buttonCsc = tk.Button (self, text = "Cosecant", bg = "cyan", command = lambda: controller.show_frame(PageCsc))
+        buttonCsc.pack ()
+
+        buttonSec = tk.Button (self, text = "Secant", bg = "cyan", command = lambda: controller.show_frame(PageSec))
+        buttonSec.pack ()
+        
+        buttonCot = tk.Button(self, text = "Cotangent", bg = "cyan", command = lambda: controller.show_frame(PageCot)) 
+        buttonCot.pack()
+        
+        home = tk.Button(self, text = "Home", command = lambda: controller.show_frame(StartPage))
+        home.pack()
+
+
+        
+class PageDeg0 (tk.Frame):
+
+    
+    def __init__(self, parent, controller):
+
+        def add_num(x):
+            
+            widgeta = a.focus_get()
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+            
+                
+
+        def graph ():
+            A = (float (a.get()))
+            s = (float (start.get()))
+            e = (float (end.get()))
+            y = a
+            x = arange (s, e)
+            y = A*x**0
+            
+            plt.plot (x, y)
+            plt.grid (True)
+            plt.show ()
+            
+                 
+        tk.Frame.__init__(self, parent)
+        mainFunction = tk.Label (self, text = "y = a ", font = FONT)
+        mainFunction.grid (row = 0, column = 0) 
+
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 1, column = 0)
+        
+        a = tk.Entry (self)
+        a.grid (row = 1, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 2, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 2, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 2, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 2, column = 3)
+
+        
+        bGraph = tk.Button (self, text = "Graph", command = graph)
+        bGraph.grid (row = 3, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PagePolynomial)) 
+        bBack.grid (row = 4, column = 2)
+
+        
+        Button(self, text = '7', width = 10, height = 5,bg = "spring green", command = lambda: add_num('7')).grid(row = 5,column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5,bg = "spring green", command = lambda: add_num('8')).grid(row = 5,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5,bg = "spring green", command = lambda: add_num('9')).grid(row = 5,column = 2, sticky = E+W+N+S)       
+             
+        Button(self, text = '4', width = 10, height = 5, bg = "spring green",command = lambda: add_num('4')).grid(row = 6,column=0, sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "spring green",command = lambda: add_num('5')).grid(row = 6,column=1, sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "spring green",command = lambda: add_num('6')).grid(row = 6,column=2, sticky = E+W+N+S)
+
+        Button(self, text='1', width = 10, height = 5, bg = "spring green", command = lambda: add_num('1')).grid(row = 7, column = 0, sticky = E+W+N+S)
+        Button(self, text='2', width = 10, height = 5, bg = "spring green", command = lambda: add_num('2')).grid(row = 7, column = 1, sticky = E+W+N+S)
+        Button(self, text='3', width = 10, height = 5, bg = "spring green", command = lambda: add_num('3')).grid(row = 7, column = 2, sticky = E+W+N+S)
+
+        Button(self,text = '0', width = 10, height = 5, bg = "spring green",command=lambda: add_num('0')).grid(row = 8, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "spring green", command = lambda: add_num('-')).grid(row = 8, column = 1, sticky = E+W+N+S)
+        Button(self,text = '.', width = 10, height = 5, bg = "spring green",command=lambda: add_num('.')).grid(row = 8, column = 2, sticky = E+W+N+S)
+    
+            
+
+class PageDeg1 (tk.Frame):
+    
+    def __init__(self, parent, controller):
+ 
+        def add_num(x):
+            
+            widgeta = a.focus_get()
+            widgetb = b.focus_get()
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetb and hasattr (widgetb, "insert"):
+                widgetb.insert("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+                
+        def graph ():
+
+            s = (float(start.get()))
+            e = (float(end.get()))
+            A = (float(a.get())) 
+            B = (float(b.get()))
+     
+            x = arange (s, e)
+            y = A*x + B
+            plt.plot (x, y)
+            plt.grid (True)
+            plt.show () 
+       
+        
+        tk.Frame.__init__(self, parent)
+
+        
+        mainFunction = tk.Label (self, text = "y = ax + b", font = FONT)
+        mainFunction.grid (row = 0, column = 0) 
+
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 1, column = 0)
+        
+        labelb = tk.Label(self, text = "b = ", font = FONT, fg = 'orange')
+        labelb.grid (row = 2, column = 0)
+
+        a = tk.Entry (self)
+        a.grid (row = 1, column = 1)
+
+        b = tk.Entry (self)
+        b.grid (row = 2, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 3, column = 0)
+        
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 3, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 3, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 3, column = 3)
+        
+        
+        bGraph  = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 4, column = 2)
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PagePolynomial)) 
+        bBack.grid (row = 5, column = 2)
+
+        
+        Button(self, text = '7', width = 10, height = 5, bg = "spring green", command = lambda: add_num('7')).grid(row = 6, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "spring green", command = lambda: add_num('8')).grid(row = 6,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "spring green", command = lambda: add_num('9')).grid(row = 6, column = 2, sticky = E+W+N+S)
+               
+             
+        Button(self, text = '4', width = 10, height = 5, bg = "spring green",command = lambda: add_num('4')).grid(row = 7, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "spring green",command = lambda: add_num('5')).grid(row = 7, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "spring green",command = lambda: add_num('6')).grid(row = 7, column = 2,sticky = E+W+N+S)
+       
+
+        Button(self,text = '1', width = 10, height = 5, bg = "spring green", command = lambda: add_num('1')).grid(row = 8, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "spring green", command = lambda: add_num('2')).grid(row = 8, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "spring green", command = lambda: add_num('3')).grid(row = 8, column = 2, sticky = E+W+N+S)
+       
+        
+
+        Button(self, text = '0', width = 10, height = 5, bg = "spring green",command = lambda: add_num('0')).grid(row = 9,column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "spring green", command = lambda: add_num('-')).grid(row = 9, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "spring green",command = lambda: add_num('.')).grid(row = 9,column = 2, sticky = E+W+N+S)
+
+
+
+class PageDeg2 (tk.Frame):
+
+    def __init__(self, parent, controller):
+        
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetb = b.focus_get()
+            widgetc = c.focus_get()
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetb and hasattr (widgetb, "insert"):
+                widgetb.insert("insert", x)
+            elif widgetc and hasattr(widgetc, "insert"):
+                widgetc.insert("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+    
+
+        def graph ():
+            A = (float (a.get()))
+            B = (float (b.get()))
+            C = (float (c.get()))
+            s = (float (start.get()))
+            e = (float (end.get()))
+
+            x = arange (s, e, 0.01)
+            y = A*x**2 + B*x + C*x**0
+            
+            plt.plot (x, y)
+            plt.grid (True)
+            plt.show ()
+            
+            
+        tk.Frame.__init__(self, parent)
+
+        
+        mainFunction = tk.Label (self, text = "y = ax^2 + bx + c", font = FONT)
+        mainFunction.grid (row = 0, column = 0) 
+
+
+        label1a = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        label1a.grid (row = 1, column = 0)
+        
+        labelb = tk.Label(self, text = "b = ", font = FONT, fg = 'orange')
+        labelb.grid (row = 2, column = 0)
+
+        labelc = tk.Label (self, text = "c = ", font = FONT, fg = 'green')
+        labelc.grid (row = 3, column = 0)
+        
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+        b = tk.Entry (self)
+        b.grid (row = 1, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 3, column = 1)
+        
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 4, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 4, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 4, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 4, column = 3)
+
+        
+        bGraph  = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 5, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PagePolynomial)) 
+        bBack.grid (row = 6, column = 2)
+
+        
+
+        Button(self, text = '7', width = 10, height = 5, bg = "spring green", command = lambda: add_num('7')).grid(row = 7, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "spring green", command = lambda: add_num('8')).grid(row = 7,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "spring green", command = lambda: add_num('9')).grid(row = 7, column = 2, sticky = E+W+N+S)
+             
+        Button(self, text = '4', width = 10, height = 5, bg = "spring green",command = lambda: add_num('4')).grid(row = 8, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "spring green",command = lambda: add_num('5')).grid(row = 8, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "spring green",command = lambda: add_num('6')).grid(row = 8, column = 2,sticky = E+W+N+S)
+    
+        Button(self,text = '1', width = 10, height = 5, bg = "spring green", command = lambda: add_num('1')).grid(row = 9, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "spring green", command = lambda: add_num('2')).grid(row = 9, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "spring green", command = lambda: add_num('3')).grid(row = 9, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "spring green",command = lambda: add_num('0')).grid(row = 10, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "spring green", command = lambda: add_num('-')).grid(row = 10, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "spring green",command = lambda: add_num('.')).grid(row = 10, column = 2, sticky = E+W+N+S)
+
+
+
+class PageDeg3 (tk.Frame):
+    
+    def __init__(self, parent, controller):
+        
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetb = b.focus_get()
+            widgetc = c.focus_get()
+            widgetd = d.get() 
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetb and hasattr (widgetb, "insert"):
+                widgetb.insert("insert", x)
+            elif widgetc and hasattr(widgetc, "insert"):
+                widgetc.insert("insert", x)
+            elif widgetd and hasattr (widgetd, "insert"):
+                widgetd.insert ("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+    
+
+        def graph ():
+            A = (float (a.get()))
+            B = (float (b.get()))
+            C = (float (c.get()))
+            D = (float (d.get ()))
+            s = (float (start.get()))
+            e = (float (end.get()))
+
+            x = arange (s, e, 0.01)
+            y = A*x**3 + B*x**2 + C*x + D*x**0
+            
+            plt.plot (x, y)
+            plt.grid (True)
+            plt.show ()
+            
+        
+        tk.Frame.__init__(self, parent)
+
+        
+        mainFunction = tk.Label (self, text = "y = ax^3 + bx^2 + cx + d", font = FONT )
+        mainFunction.grid (row = 0, column = 0, sticky = "nsew") 
+
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 1, column = 0)
+        
+        labelb = tk.Label(self, text = "b = ", font = FONT, fg = 'orange')
+        labelb.grid (row = 2, column = 0)
+
+        labelc = tk.Label (self, text = "c = ", font = FONT, fg = 'green')
+        labelc.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'blue')
+        labeld.grid (row = 4, column = 0)
+        
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+        b = tk.Entry (self)
+        b.grid (row = 1, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 3, column = 1)
+
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 5, column = 0)
+        start = tk.Entry (self)
+        start.grid (row = 5, column = 1)
+
+        
+        end = tk.Entry (self)
+        end.grid (row = 5, column = 3)
+        
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 5, column = 2)
+        
+        bGraph  = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 6, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PagePolynomial)) 
+        bBack.grid (row = 7, column = 2)
+
+        
+        Button(self, text = '7', width = 10, height = 5, bg = "spring green", command = lambda: add_num('7')).grid(row = 8, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "spring green", command = lambda: add_num('8')).grid(row = 8,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "spring green", command = lambda: add_num('9')).grid(row = 8, column = 2, sticky = E+W+N+S)
+               
+        Button(self, text = '4', width = 10, height = 5, bg = "spring green",command = lambda: add_num('4')).grid(row = 9, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "spring green",command = lambda: add_num('5')).grid(row = 9, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "spring green",command = lambda: add_num('6')).grid(row = 9, column = 2,sticky = E+W+N+S)
+       
+        Button(self,text = '1', width = 10, height = 5, bg = "spring green", command = lambda: add_num('1')).grid(row = 10, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "spring green", command = lambda: add_num('2')).grid(row = 10, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "spring green", command = lambda: add_num('3')).grid(row = 10, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "spring green", command = lambda: add_num('0')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "spring green", command = lambda: add_num('-')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "spring green", command = lambda: add_num('.')).grid(row = 11, column = 2, sticky = E+W+N+S)
+       
+
+
+class PageSin (tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetk = k.focus_get()
+            widgetd = d.focus_get()
+            widgetc = c.get() 
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetk and hasattr (widgetk, "insert"):
+                widgetk.insert("insert", x)
+            elif widgetd and hasattr(widgetd, "insert"):
+                widgetd.insert("insert", x)
+            elif widgetc and hasattr (widgetc, "insert"):
+                widgetd.insert ("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+
+
+        def graph ():
+            A = (float (a.get () ) )
+            K = (float (k.get () ) )
+            D = (float (d.get () ) )
+            C = (float (c.get () ) )
+            s = (float (start.get () ) )
+            e = (float (end.get () ) )
+
+            x = arange (s, e, 0.01)
+            ps = x - D
+            n = K*ps
+            f = A*sin(n)
+            y = f + C
+            plt.plot (x, y)
+            plt.grid (True)
+            plt.show ()
+
+            
+           
+        tk.Frame.__init__(self, parent)
+
+
+        mainFunction = tk.Label(self, text = "y = asin[k(x-d)] + c", font = FONT)
+        mainFunction.grid (row = 1, column = 0)
+
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        Button(self, text = '7', width = 10, height = 5, bg = "cyan", command = lambda: add_num('7')).grid(row = 9, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "cyan", command = lambda: add_num('8')).grid(row = 9,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "cyan", command = lambda: add_num('9')).grid(row = 9, column = 2, sticky = E+W+N+S)
+               
+        Button(self, text = '4', width = 10, height = 5, bg = "cyan",command = lambda: add_num('4')).grid(row = 10, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "cyan",command = lambda: add_num('5')).grid(row = 10, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "cyan",command = lambda: add_num('6')).grid(row = 10, column = 2,sticky = E+W+N+S)
+       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "cyan", command = lambda: add_num('-')).grid(row = 12, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)
+
+
+        
+class PageCos (tk.Frame):
+
+    def __init__(self, parent, controller):
+        
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetk = k.focus_get()
+            widgetd = d.focus_get()
+            widgetc = c.get() 
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetk and hasattr (widgetk, "insert"):
+                widgetk.insert("insert", x)
+            elif widgetd and hasattr(widgetd, "insert"):
+                widgetd.insert("insert", x)
+            elif widgetc and hasattr (widgetc, "insert"):
+                widgetd.insert ("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+           
+        def graph ():
+            A = (float (a.get () ) )
+            K = (float (k.get () ) )
+            D = (float (d.get () ) )
+            C = (float (c.get () ) )
+            s = (float (start.get () ) )
+            e = (float (end.get () ) )
+
+            x = arange (s, e, 0.01)
+            ps = x - D
+            n = K*ps
+            f = A*cos(n)
+            y = f + C
+            plt.plot (x, y)
+            plt.grid (True)
+            plt.show ()
+
+           
+        tk.Frame.__init__(self, parent)
+
+
+        mainFunction = tk.Label(self, text = "y = acos[k(x-d)] + c", font = FONT)
+        mainFunction.grid (row = 1, column = 0)
+
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        Button(self, text = '7', width = 10, height = 5, bg = "cyan", command = lambda: add_num('7')).grid(row = 9, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "cyan", command = lambda: add_num('8')).grid(row = 9,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "cyan", command = lambda: add_num('9')).grid(row = 9, column = 2, sticky = E+W+N+S)
+               
+        Button(self, text = '4', width = 10, height = 5, bg = "cyan",command = lambda: add_num('4')).grid(row = 10, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "cyan",command = lambda: add_num('5')).grid(row = 10, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "cyan",command = lambda: add_num('6')).grid(row = 10, column = 2,sticky = E+W+N+S)
+       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "cyan", command = lambda: add_num('-')).grid(row = 12, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)
+
+
+
+class PageTan (tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetk = k.focus_get()
+            widgetd = d.focus_get()
+            widgetc = c.get() 
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetk and hasattr (widgetk, "insert"):
+                widgetk.insert("insert", x)
+            elif widgetd and hasattr(widgetd, "insert"):
+                widgetd.insert("insert", x)
+            elif widgetc and hasattr (widgetc, "insert"):
+                widgetd.insert ("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+    
+  
+        def graph ():
+            A = (float (a.get () ) )
+            K = (float (k.get () ) )
+            D = (float (d.get () ) )
+            C = (float (c.get () ) )
+            s = (float (start.get () ) )
+            e = (float (end.get () ) )
+
+            x = arange (s, e, 0.01)
+            ps = x - D
+            n = K*ps
+            sine = A*sin(n)
+            cosine = A*cos(n)
+            yinitial = sine / cosine 
+            yfinal = yinitial + C 
+            p.plot(x,yfinal,'g-',lw=1)
+            p.ylim([-4, 4]) # for restricting x values as y approaches infinity so asymptotes can be shown
+            p.grid (True) 
+            p.show()
+
+        
+        tk.Frame.__init__(self, parent)
+
+        mainFunction = tk.Label(self, text = "y = atan[k(x-d)] + c", font = FONT)
+        mainFunction.grid (row = 1, column = 0)
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        Button(self, text = '7', width = 10, height = 5, bg = "cyan", command = lambda: add_num('7')).grid(row = 9, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "cyan", command = lambda: add_num('8')).grid(row = 9,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "cyan", command = lambda: add_num('9')).grid(row = 9, column = 2, sticky = E+W+N+S)
+               
+        Button(self, text = '4', width = 10, height = 5, bg = "cyan",command = lambda: add_num('4')).grid(row = 10, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "cyan",command = lambda: add_num('5')).grid(row = 10, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "cyan",command = lambda: add_num('6')).grid(row = 10, column = 2,sticky = E+W+N+S)
+       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)
+
+
+class PageCot (tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetk = k.focus_get()
+            widgetd = d.focus_get()
+            widgetc = c.get() 
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetk and hasattr (widgetk, "insert"):
+                widgetk.insert("insert", x)
+            elif widgetd and hasattr(widgetd, "insert"):
+                widgetd.insert("insert", x)
+            elif widgetc and hasattr (widgetc, "insert"):
+                widgetd.insert ("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+    
+  
+        def graph ():
+            A = (float (a.get () ) )
+            K = (float (k.get () ) )
+            D = (float (d.get () ) )
+            C = (float (c.get () ) )
+            s = (float (start.get () ) )
+            e = (float (end.get () ) )
+
+            x = arange (s, e, 0.01)
+            ps = x - D
+            n = K*ps
+            sine = A*sin(n)
+            cosine = A*cos(n)
+            yinitial = cosine / sine
+            yfinal = yinitial + C 
+            p.plot(x,yfinal,'g-',lw=1)
+            p.ylim([-4, 4]) # for restricting x values as y approaches infinity so asymptotes can be shown
+            p.grid (True)
+            p.show()
+            
+
+        
+        tk.Frame.__init__(self, parent)
+
+        mainFunction = tk.Label(self, text = "y = acot[k(x-d)] + c", font = FONT)
+        mainFunction.grid (row = 1, column = 0)
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        Button(self, text = '7', width = 10, height = 5, bg = "cyan", command = lambda: add_num('7')).grid(row = 9, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "cyan", command = lambda: add_num('8')).grid(row = 9,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "cyan", command = lambda: add_num('9')).grid(row = 9, column = 2, sticky = E+W+N+S)
+               
+        Button(self, text = '4', width = 10, height = 5, bg = "cyan",command = lambda: add_num('4')).grid(row = 10, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "cyan",command = lambda: add_num('5')).grid(row = 10, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "cyan",command = lambda: add_num('6')).grid(row = 10, column = 2,sticky = E+W+N+S)
+       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)
+
+
+
+class PageCsc (tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetk = k.focus_get()
+            widgetd = d.focus_get()
+            widgetc = c.get() 
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetk and hasattr (widgetk, "insert"):
+                widgetk.insert("insert", x)
+            elif widgetd and hasattr(widgetd, "insert"):
+                widgetd.insert("insert", x)
+            elif widgetc and hasattr (widgetc, "insert"):
+                widgetd.insert ("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+
+
+        def graph ():
+            A = (float (a.get () ) )
+            K = (float (k.get () ) )
+            D = (float (d.get () ) )
+            C = (float (c.get () ) )
+            s = (float (start.get () ) )
+            e = (float (end.get () ) )
+
+            x = arange (s, e, 0.01)
+            ps = x - D
+            n = K*ps
+            sine = A*sin(n)
+            yinitial = 1 / sine
+            yfinal = yinitial + C 
+            p.plot(x,yfinal,'g-',lw=1)
+            p.ylim([-4, 4]) # for restricting x values as y approaches infinity so asymptotes can be shown
+            p.grid (True)
+            p.show()
+            
+
+            
+           
+        tk.Frame.__init__(self, parent)
+
+
+        mainFunction = tk.Label(self, text = "y = acsc[k(x-d)] + c", font = FONT)
+        mainFunction.grid (row = 1, column = 0)
+
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        Button(self, text = '7', width = 10, height = 5, bg = "cyan", command = lambda: add_num('7')).grid(row = 9, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "cyan", command = lambda: add_num('8')).grid(row = 9,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "cyan", command = lambda: add_num('9')).grid(row = 9, column = 2, sticky = E+W+N+S)
+               
+        Button(self, text = '4', width = 10, height = 5, bg = "cyan",command = lambda: add_num('4')).grid(row = 10, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "cyan",command = lambda: add_num('5')).grid(row = 10, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "cyan",command = lambda: add_num('6')).grid(row = 10, column = 2,sticky = E+W+N+S)
+       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "cyan", command = lambda: add_num('-')).grid(row = 12, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)
+
+
+
+class PageSec (tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        def add_num(x):
+            widgeta = a.focus_get()
+            widgetk = k.focus_get()
+            widgetd = d.focus_get()
+            widgetc = c.get() 
+            widgets = start.focus_get()
+            widgete = end.focus_get()
+            
+            if widgeta and hasattr(widgeta, "insert"):
+                widgeta.insert("insert", x)
+            elif widgetk and hasattr (widgetk, "insert"):
+                widgetk.insert("insert", x)
+            elif widgetd and hasattr(widgetd, "insert"):
+                widgetd.insert("insert", x)
+            elif widgetc and hasattr (widgetc, "insert"):
+                widgetd.insert ("insert", x)
+            elif widgets and hasattr (widgets, "insert"):
+                widgets.insert("insert", x)
+            elif widgete and hasattr (widgete, "insert"):
+                widgete.insert("insert", x)
+
+
+        def graph ():
+            A = (float (a.get () ) )
+            K = (float (k.get () ) )
+            D = (float (d.get () ) )
+            C = (float (c.get () ) )
+            s = (float (start.get () ) )
+            e = (float (end.get () ) )
+
+            x = arange (s, e, 0.01)
+            ps = x - D
+            n = K*ps
+            cosine = A*cos(n)
+            yinitial = 1 / cosine
+            yfinal = yinitial + C 
+            p.plot(x,yfinal,'g-',lw=1)
+            p.ylim([-4, 4]) # for restricting x values as y approaches infinity so asymptotes can be shown
+            p.grid (True)
+            p.show() 
+            
+
+            
+           
+        tk.Frame.__init__(self, parent)
+
+
+        mainFunction = tk.Label(self, text = "y = asec[k(x-d)] + c", font = FONT)
+        mainFunction.grid (row = 1, column = 0)
+
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        labela = tk.Label(self, text = "a = ", font = FONT, fg = 'red')
+        labela.grid (row = 2, column = 0)
+        
+        labelk = tk.Label(self, text = "k = ", font = FONT, fg = 'orange')
+        labelk.grid (row = 3, column = 0)
+
+        labeld = tk.Label (self, text = "d = ", font = FONT, fg = 'green')
+        labeld.grid (row = 4, column = 0)
+
+        labelc = tk.Label(self, text = "c = ", font = FONT, fg = 'blue')
+        labelc.grid (row = 5, column = 0)
+
+        labelRD = tk.Label (self, text = "radian = deg x pi / 180", font = FONT)
+        labelRD.grid (row = 7, column = 0)
+        
+
+        a = tk.Entry (self)
+        a.grid (row = 2, column = 1)
+
+
+        k = tk.Entry (self)
+        k.grid (row = 3, column = 1)
+        
+        d = tk.Entry (self)
+        d.grid (row = 4, column = 1)
+
+        c = tk.Entry (self)
+        c.grid (row = 5, column = 1)
+
+
+        sLabel = tk.Label (self, text = "from ", font = FONT) 
+        sLabel.grid (row = 6, column = 0)
+
+        eLabel = tk.Label (self, text = " to ", font = FONT)
+        eLabel.grid (row = 6, column = 2)
+        
+        start = tk.Entry (self)
+        start.grid (row = 6, column = 1)
+        
+        end = tk.Entry (self)
+        end.grid (row = 6, column = 3)
+
+         
+        bGraph = tk.Button (self, text = "Graph", command = graph) 
+        bGraph.grid (row = 7, column = 2)
+        
+        bBack = tk.Button (self, text = "Back",command = lambda: controller.show_frame (PageTrig)) 
+        bBack.grid (row = 8, column = 2)
+        
+
+        Button(self, text = '7', width = 10, height = 5, bg = "cyan", command = lambda: add_num('7')).grid(row = 9, column = 0, sticky = E+W+N+S)
+        Button(self, text = '8', width = 10, height = 5, bg = "cyan", command = lambda: add_num('8')).grid(row = 9,column = 1, sticky = E+W+N+S)
+        Button(self, text = '9', width = 10, height = 5, bg = "cyan", command = lambda: add_num('9')).grid(row = 9, column = 2, sticky = E+W+N+S)
+               
+        Button(self, text = '4', width = 10, height = 5, bg = "cyan",command = lambda: add_num('4')).grid(row = 10, column = 0,sticky = E+W+N+S)
+        Button(self, text = '5', width = 10, height = 5, bg = "cyan",command = lambda: add_num('5')).grid(row = 10, column = 1,sticky = E+W+N+S)
+        Button(self, text = '6', width = 10, height = 5, bg = "cyan",command = lambda: add_num('6')).grid(row = 10, column = 2,sticky = E+W+N+S)
+       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)       
+        Button(self,text = '1', width = 10, height = 5, bg = "cyan", command = lambda: add_num('1')).grid(row = 11, column = 0, sticky = E+W+N+S)
+        Button(self,text = '2', width = 10, height = 5, bg = "cyan", command = lambda: add_num('2')).grid(row = 11, column = 1, sticky = E+W+N+S)
+        Button(self,text = '3', width = 10, height = 5, bg = "cyan", command = lambda: add_num('3')).grid(row = 11, column = 2, sticky = E+W+N+S)
+
+        Button(self, text = '0', width = 10, height = 5, bg = "cyan", command = lambda: add_num('0')).grid(row = 12, column = 0, sticky = E+W+N+S)
+        Button (self, text = '-', width = 10, height = 5, bg = "cyan", command = lambda: add_num('-')).grid(row = 12, column = 1, sticky = E+W+N+S)
+        Button(self, text = '.', width = 10, height = 5, bg = "cyan", command = lambda: add_num('.')).grid(row = 12, column = 2, sticky = E+W+N+S)
+
+
+        
+app = root()
+app.title ("Gaphing Calculator v.1.0") 
+app.mainloop()
